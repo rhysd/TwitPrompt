@@ -1,8 +1,10 @@
 NAME:
+
     TwitPrompt
 
 
 EXPLANATION:
+
  - this is Ruby script to display tweets on shell prompt
  - this requires gem:twitter ( % gem install twitter )
  - % ruby twit_prompt.rb init
@@ -14,6 +16,7 @@ EXPLANATION:
 
 
 CHANGELOG:
+
     1.2.120203:
         - rename to twit_prompt.rb
 

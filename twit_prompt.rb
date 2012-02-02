@@ -6,7 +6,7 @@ MyScreenName = "your_screen_name"
 
 def config_twitter
 
-    require 'rubygems' if RUBY_VERSION.to_f < 1.9
+    require 'rubygems' if RUBY_VERSION < "1.9"
     require 'twitter'
 
     Twitter::configure do |config|
