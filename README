@@ -1,0 +1,30 @@
+NAME:
+    TwitPrompt
+
+
+EXPLANATION:
+ - this is Ruby script to display tweets on shell prompt
+ - this requires gem:twitter ( % gem install twitter )
+ - % ruby twit_prompt.rb init
+   -> initialize resource file ~/.timeline
+   -> you should do this command first
+ - % ruby twit_prompt.rb
+   -> get one tweet from resource file
+   -> if resource file is empty, get more timeline from twitter
+
+
+CHANGELOG:
+    1.2.120203:
+        - rename to twit_prompt.rb
+
+    1.2.111209:
+        - implement tweet filtering (filtering? method)
+
+    1.1.111205:
+        - highlight some text (screen_name, posted_time, mention)
+
+    1.0.111125:
+        - implement tweet command (twit_prompt.rb update {your_tweet})
+
+    1.0.111118:
+        - release version 1.0
