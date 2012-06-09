@@ -2,16 +2,39 @@
 # -*- coding: utf-8 -*-
 
 # ファイルの更新時間を見ればどこまでツイートを取れば良いか分かるので，ファイルに記録する必要はない
-TwitPromptConfigDir = File.expand_path('~')+'.twit_prompt'
+TwitPromptConfigDir = File.expand_path('~')+'/.twit_prompt'
 TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
 TwitPromptTimelineData = TwitPromptConfigDir+"/timeline"
 TwitPromptCredentialTmp = '.twit_prompt_config.yml'
+
+def check_config
+
+    Dir.mkdir TwitPromptConfigDir unless File.exist? TwitPromptConfigDir
+    unless File.exist? TwitPromptCredentialFile
+        File.open(TwitPromptCredentialFile, "w") do |file|
+            text = <<-EOF
+consumer_key:       YourConsumerKey
+consumer_secret:    YourConsumerSecretKey
+oauth_token:        YourOAuthToken
+oauth_token_secret: YourOAuthSecretToken
+            EOF
+            file.print text
+
+            STDERR.puts "Configuration-keys are not found."
+            STDERR.puts "Write your consumer keys and OAuth keys to #{TwitPromptCredentialFile}"
+            exit
+        end
+    end
+
+end
 
 def config_twitter
 
     require 'rubygems' if RUBY_VERSION < "1.9"
     require 'twitter'
     require 'yaml'
+
+    check_config
 
     yaml = YAML.load(File.open(TwitPromptCredentialTmp).read)
     Twitter.configure do |config|
