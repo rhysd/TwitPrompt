@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # ファイルの更新時間を見ればどこまでツイートを取れば良いか分かるので，ファイルに記録する必要はない
+require 'rubygems' if RUBY_VERSION < '1.9'
+
 TwitPromptConfigDir = File.expand_path('~')+'/.twit_prompt'
 TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
 TwitPromptTimelineData = TwitPromptConfigDir+"/timeline"
@@ -30,7 +32,6 @@ end
 
 def config_twitter
 
-    require 'rubygems' if RUBY_VERSION < "1.9"
     require 'twitter'
     require 'yaml'
 
@@ -46,55 +47,89 @@ def config_twitter
 
 end
 
+module TwitPrompt
+    class << self
 
+        def init(options)
+
+        end
+
+        def put(options)
+
+        end
+
+        def update(options)
+
+        end
+
+        def list(options)
+
+        end
+
+        def tweet(options,text)
+            puts text
+            puts "tweeted: #{text}" if options[:verbose]
+        end
+
+        def reply(options,text)
+            puts "replyed: #{text}" if options[:verbose]
+        end
+
+        def retweet(options)
+            puts "retweeted: " if options[:verbose]
+        end
+
+        def fav(options)
+            puts "faved: " if options[:verbose]
+        end
+
+    end
+end
 
 require 'thor'
 
-class TwitPrompt < Thor
+class TwitPromptApp < Thor
+
+    private
+
+    def self.delegate(name)
+        define_method name do |*args|
+            TwitPrompt.send name,options,*args
+        end
+    end
+
+    def self.verbose_option
+        method_option :verbose, :type => :boolean, :aliases => '-v', :default => true, :desc => 'output result'
+    end
+
+    public
 
     desc 'init', 'initialize timeline data'
-    def init
-
-    end
+    delegate :init
 
     desc 'put', 'get a tweet from data'
-    def one_tweet
-
-    end
+    delegate :put
 
     desc 'update', 'update timeline'
-    def update
-
-    end
+    delegate :update
 
     desc 'list', 'display timeline to stdout'
-    def list
-
-    end
+    delegate :list
 
     desc 'tweet [TEXT]', 'tweet'
-    method_option :verbose, :aliases => '-v', :default => false, :desc => 'output result'
-    def tweet(text)
-        puts text
-    end
+    delegate :tweet
 
     desc 'reply [TEXT]', 'reply to last-displayed tweet'
-    method_option :verbose, :aliases => '-v', :default => false, :desc => 'output result'
-    def reply(text)
-
-    end
+    verbose_option
+    delegate :reply
 
     desc 'retweet', 'retweet last-displayed tweet'
-    method_option :verbose, :aliases => '-v', :default => false, :desc => 'output result'
-    def retweet
-
-    end
+    verbose_option
+    delegate :retweet
 
     desc 'fav', 'add last-desplayed tweet to favorite tweets'
-    method_option :verbose, :aliases => '-v', :default => false, :desc => 'output result'
-    def fav
-
-    end
+    verbose_option
+    delegate :fav
 
 end
 
@@ -102,7 +137,7 @@ end
 # main
 #
 if __FILE__ == $0 then
-    TwitPrompt.start
+    TwitPromptApp.start
 end
 
 
