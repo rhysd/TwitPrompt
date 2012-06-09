@@ -1,10 +1,12 @@
 TwitPrompt
 ==========
 
+#Summary:
+
 This is Ruby script to display tweets on shell prompt
 
 
-#Features
+#Features:
 
 - display latest tweet of your timeline on your shell prompt
 - update automatically when stored tweets is run out
@@ -12,7 +14,7 @@ This is Ruby script to display tweets on shell prompt
 - filtering tweet using ruby
 - execute `twit_prompt help` to get more information
 
-#Requirements
+#Requirements:
 
 ##Required gems
 
@@ -31,7 +33,7 @@ Visit https://dev.twitter.com/ and register your app to get keys.
 - oauth secret key
 
 
-#Installation
+#Installation:
 
 Add twit\_prompt.rb in $PATH and add below to your .zshrc
 
@@ -41,7 +43,9 @@ Add twit\_prompt.rb in $PATH and add below to your .zshrc
     twit_prompt.rb init
 
 
-#License: The MIT License
+#License:
+
+##The MIT License
 
     Copyright (c) 2012 rhysd
 
