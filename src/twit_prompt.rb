@@ -4,51 +4,51 @@
 # ファイルの更新時間を見ればどこまでツイートを取れば良いか分かるので，ファイルに記録する必要はない
 require 'rubygems' if RUBY_VERSION < '1.9'
 
-TwitPromptConfigDir = File.expand_path('~')+'/.twit_prompt'
-TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
-TwitPromptTimelineData = TwitPromptConfigDir+"/timeline"
-TwitPromptCredentialTmp = '.twit_prompt_config.yml'
+module TwitPrompt
+    class << self
 
-def check_config
+        TwitPromptConfigDir = File.expand_path('~')+'/.twit_prompt'
+        TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
+        TwitPromptTimelineData = TwitPromptConfigDir+"/timeline"
+        TwitPromptCredentialTmp = '.twit_prompt_config.yml'
 
-    Dir.mkdir TwitPromptConfigDir unless File.exist? TwitPromptConfigDir
-    unless File.exist? TwitPromptCredentialFile
-        File.open(TwitPromptCredentialFile, "w") do |file|
-            text = <<-EOF
+        def check_config
+
+            Dir.mkdir TwitPromptConfigDir unless File.exist? TwitPromptConfigDir
+            unless File.exist? TwitPromptCredentialFile
+                File.open(TwitPromptCredentialFile, "w") do |file|
+                    text = <<-EOF
 consumer_key:       YourConsumerKey
 consumer_secret:    YourConsumerSecretKey
 oauth_token:        YourOAuthToken
 oauth_token_secret: YourOAuthSecretToken
-            EOF
-            file.print text
+                    EOF
+                    file.print text
 
-            STDERR.puts "Configuration-keys are not found."
-            STDERR.puts "Write your consumer keys and OAuth keys to #{TwitPromptCredentialFile}"
-            exit
+                    STDERR.puts "Configuration-keys are not found."
+                    STDERR.puts "Write your consumer keys and OAuth keys to #{TwitPromptCredentialFile}"
+                    exit
+                end
+            end
+
         end
-    end
 
-end
+        def config_twitter
 
-def config_twitter
+            require 'twitter'
+            require 'yaml'
 
-    require 'twitter'
-    require 'yaml'
+            check_config
 
-    check_config
+            yaml = YAML.load(File.open(TwitPromptCredentialTmp).read)
+            Twitter.configure do |config|
+                config.consumer_key = yaml['consumer_key']
+                config.consumer_secret = yaml['consumer_secret']
+                config.oauth_token = yaml['oauth_token']
+                config.oauth_token_secret = yaml['oauth_token_secret']
+            end
 
-    yaml = YAML.load(File.open(TwitPromptCredentialTmp).read)
-    Twitter.configure do |config|
-        config.consumer_key = yaml['consumer_key']
-        config.consumer_secret = yaml['consumer_secret']
-        config.oauth_token = yaml['oauth_token']
-        config.oauth_token_secret = yaml['oauth_token_secret']
-    end
-
-end
-
-module TwitPrompt
-    class << self
+        end
 
         def init(options)
 
