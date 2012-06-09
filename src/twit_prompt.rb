@@ -94,7 +94,7 @@ class TwitPromptApp < Thor
 
     def self.delegate(name)
         define_method name do |*args|
-            TwitPrompt.send name,options,*args
+            TwitPrompt.__send__ name,options,*args
         end
     end
 
