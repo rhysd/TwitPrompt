@@ -17,18 +17,20 @@ module TwitPrompt
             Dir.mkdir TwitPromptConfigDir unless File.exist? TwitPromptConfigDir
             unless File.exist? TwitPromptCredentialFile
                 File.open(TwitPromptCredentialFile, "w") do |file|
-                    text = <<-EOF
+                    text = <<-EOS
+# get app keys at https://dev.twitter.com/ and write them
+
 consumer_key:       YourConsumerKey
 consumer_secret:    YourConsumerSecretKey
 oauth_token:        YourOAuthToken
 oauth_token_secret: YourOAuthSecretToken
-                    EOF
+                    EOS
                     file.print text
 
                     STDERR.puts "Configuration-keys are not found."
                     STDERR.puts "Write your consumer keys and OAuth keys to #{TwitPromptCredentialFile}"
-                    exit
                 end
+                system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', TwitPromptCredentialFile
             end
 
         end
@@ -72,7 +74,7 @@ oauth_token_secret: YourOAuthSecretToken
         end
 
         def reply(options,text)
-            puts "replyed: #{text}" if options[:verbose]
+            puts "replied: #{text}" if options[:verbose]
         end
 
         def retweet(options)
@@ -81,6 +83,10 @@ oauth_token_secret: YourOAuthSecretToken
 
         def fav(options)
             puts "faved: " if options[:verbose]
+        end
+
+        def config(options)
+            check_config
         end
 
     end
@@ -94,7 +100,7 @@ class TwitPromptApp < Thor
 
     def self.delegate(name)
         define_method name do |*args|
-            TwitPrompt.__send__ name,options,*args
+            TwitPrompt::__send__ name,options,*args
         end
     end
 
@@ -131,13 +137,15 @@ class TwitPromptApp < Thor
     verbose_option
     delegate :fav
 
+    desc 'config', 'configure YAML setting file'
+    delegate :config
 end
 
 #
 # main
 #
 if __FILE__ == $0 then
-    TwitPromptApp.start
+    TwitPromptApp::start
 end
 
 
