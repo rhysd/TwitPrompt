@@ -4,6 +4,9 @@
 # ファイルの更新時間を見ればどこまでツイートを取れば良いか分かるので，ファイルに記録する必要はない
 require 'rubygems' if RUBY_VERSION < '1.9'
 
+# execute in background and quietly
+Process.daemon true,true if %w[init update].any?{|a| a.include? ARGV[0]}
+
 module TwitPrompt
     class << self
 
@@ -31,6 +34,9 @@ oauth_token_secret: YourOAuthSecretToken
                     STDERR.puts "Write your consumer keys and OAuth keys to #{TwitPromptCredentialFile}"
                 end
                 system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', TwitPromptCredentialFile
+                false
+            else
+                true
             end
 
         end
@@ -51,6 +57,7 @@ oauth_token_secret: YourOAuthSecretToken
             end
 
         end
+
 
         def init(options)
 
@@ -86,14 +93,16 @@ oauth_token_secret: YourOAuthSecretToken
         end
 
         def config(options)
-            check_config
+            if check_config
+                puts "open #{TwitPromptCredentialFile}"
+                system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', TwitPromptCredentialFile
+            end
         end
 
     end
 end
 
 require 'thor'
-
 class TwitPromptApp < Thor
 
     private
@@ -145,6 +154,7 @@ end
 # main
 #
 if __FILE__ == $0 then
+
     TwitPromptApp::start
 end
 
