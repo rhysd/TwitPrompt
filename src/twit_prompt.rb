@@ -5,7 +5,7 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 
 # execute in background and quietly
-Process.daemon true,true if %w[init update].any?{|a| a.include? ARGV[0]}
+Process.daemon true,true if %w[init update].any?{|a| a =~ /^#{ARGV[0]}/}
 
 module TwitPrompt
     class << self
@@ -20,15 +20,14 @@ module TwitPrompt
             Dir.mkdir TwitPromptConfigDir unless File.exist? TwitPromptConfigDir
             unless File.exist? TwitPromptCredentialFile
                 File.open(TwitPromptCredentialFile, "w") do |file|
-                    text = <<-EOS
-# get app keys at https://dev.twitter.com/ and write them
+                    file.print <<-EOS.gsub(/^\s+/, '')
+                        # get app keys at https://dev.twitter.com/ and write them
 
-consumer_key:       YourConsumerKey
-consumer_secret:    YourConsumerSecretKey
-oauth_token:        YourOAuthToken
-oauth_token_secret: YourOAuthSecretToken
+                        consumer_key:       YourConsumerKey
+                        consumer_secret:    YourConsumerSecretKey
+                        oauth_token:        YourOAuthToken
+                        oauth_token_secret: YourOAuthSecretToken
                     EOS
-                    file.print text
 
                     STDERR.puts "Configuration-keys are not found."
                     STDERR.puts "Write your consumer keys and OAuth keys to #{TwitPromptCredentialFile}"
@@ -154,7 +153,6 @@ end
 # main
 #
 if __FILE__ == $0 then
-
     TwitPromptApp::start
 end
 
