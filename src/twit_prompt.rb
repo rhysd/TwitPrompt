@@ -12,7 +12,7 @@ module TwitPrompt
 
         TwitPromptConfigDir = File.expand_path('~')+'/.twit_prompt'
         TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
-        TwitPromptTimelineData = TwitPromptConfigDir+"/timeline"
+        TwitPromptTimelineData = "/tmp/timeline"
         TwitPromptCredentialTmp = '.twit_prompt_config.yml'
 
         def check_config
@@ -57,6 +57,13 @@ module TwitPrompt
 
         end
 
+        def filtering? status
+
+        end
+
+        def update_timeline
+
+        end
 
         def init(options)
 
@@ -98,6 +105,7 @@ module TwitPrompt
             end
         end
 
+        private :check_config, :config_twitter, :filtering?, :update_timeline
     end
 end
 
