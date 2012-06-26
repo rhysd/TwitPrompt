@@ -11,9 +11,9 @@ module TwitPrompt
     class << self
 
         TwitPromptConfigDir = File.expand_path('~')+'/.twit_prompt'
-        TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
+        # TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
+        TwitPromptCredentialFile = '.twit_prompt_config.yml'
         TwitPromptTimelineData = "/tmp/timeline"
-        TwitPromptCredentialTmp = '.twit_prompt_config.yml'
 
         def check_config
 
@@ -41,13 +41,14 @@ module TwitPrompt
         end
 
         def config_twitter
+            return if @already_authorized
 
             require 'twitter'
             require 'yaml'
 
             check_config
 
-            yaml = YAML.load(File.open(TwitPromptCredentialTmp).read)
+            yaml = YAML.load(File.open(TwitPromptCredentialFile).read)
             Twitter.configure do |config|
                 config.consumer_key = yaml['consumer_key']
                 config.consumer_secret = yaml['consumer_secret']
@@ -55,18 +56,34 @@ module TwitPrompt
                 config.oauth_token_secret = yaml['oauth_token_secret']
             end
 
+            @already_authorized = true
         end
 
         def filtering? status
-
+            false
         end
 
         def update_timeline
-
+            config_twitter
+            File.open TwitPromptTimelineData,"a+" do |file|
+                content = file.read
+                last_update = content.empty? ?
+                                Time.local(1900) :
+                                Time.new(content.split("\n").last)
+                Twitter.home_timeline.reverse_each do |status|
+                    break if status.created_at < last_update
+                    unless filtering? status
+                        user = status.user.screen_name
+                        test = status.text.gsub /\n/,' '
+                        created_at = status.created_at
+                        file.puts created_at,user,test
+                    end
+                end
+            end
         end
 
         def init(options)
-
+            update_timeline
         end
 
         def put(options)
@@ -74,7 +91,7 @@ module TwitPrompt
         end
 
         def update(options)
-
+            update_timeline
         end
 
         def list(options)
