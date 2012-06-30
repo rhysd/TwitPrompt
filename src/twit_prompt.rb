@@ -10,17 +10,19 @@ Process.daemon true,true if %w[init update].any?{|a| a =~ /^#{ARGV[0]}/}
 class String
 
     def self.colorize_method name,code
-        define_method(name) do |str|
-            "\e[#{code}m#{str}\e[0m"
+        define_method(name) do
+            "\e[#{code}m#{self}\e[0m"
         end
     end
+
+    # private :colorize_method
 
     colorize_method :dark_blue,   "0;34"
     colorize_method :dark_green,  "0;32"
     colorize_method :dark_cyan,   "0;36"
     colorize_method :dark_red,    "0;31"
     colorize_method :dark_purple, "0;35"
-    colorize_method :dark_yellow, "1;33"
+    colorize_method :dark_yellow, "0;33"
     colorize_method :red,         "1;31"
     colorize_method :blue,        "1;34"
     colorize_method :en,          "1;32"
@@ -92,16 +94,6 @@ module TwitPrompt
             false
         end
 
-        # return [user,text,created_at]
-        def build_tweet status,created_at
-            user = "@#{status.user.screen_name}: ".cyan
-            text = status.text.gsub /\n/,' '
-            text = text.include?(UserName) ? text.green : text # whether mention or not
-            created_at = ' [' + Time.new(created_at).strftime("%m/%d %H:%M:%S") + ']'
-            created_at = created_at.yellow
-            user + text + created_at
-        end
-
         def update_timeline
             config_twitter
             File.open TwitPromptTimelineData,"a+" do |file|
@@ -121,12 +113,24 @@ module TwitPrompt
             end
         end
 
+        def build_tweet user,text,created_at
+            user = "@#{user}: ".dark_cyan
+            text = text.gsub /\n/,' '
+            text = text.include?(UserName) ? text.dark_green : text # whether mention or not
+            created_at = ' [' + Time.new(created_at).strftime("%m/%d %T") + ']'
+            created_at = created_at.dark_yellow
+            user + text + created_at
+        end
+
+
+        private :check_config, :config_twitter, :filtering?, :update_timeline, :build_tweet
+
         def init(options)
             update_timeline
         end
 
         def put(options)
-
+            puts build_tweet("Linda_pp","aiueo @Linda_pp kakikukeko sasissuseso","2012-06-30 11:35:36 +0900")
         end
 
         def update(options)
@@ -161,7 +165,6 @@ module TwitPrompt
             end
         end
 
-        private :check_config, :config_twitter, :filtering?, :update_timeline, :build_tweet
     end
 end
 
