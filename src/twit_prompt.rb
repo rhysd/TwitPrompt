@@ -7,6 +7,34 @@ require 'rubygems' if RUBY_VERSION < '1.9'
 # execute in background and quietly
 Process.daemon true,true if %w[init update].any?{|a| a =~ /^#{ARGV[0]}/}
 
+class String
+
+    def self.colorize_method name,code
+        define_method(name) do |str|
+            "\e[#{code}m#{str}\e[0m"
+        end
+    end
+
+    colorize_method :dark_blue,   "0;34"
+    colorize_method :dark_green,  "0;32"
+    colorize_method :dark_cyan,   "0;36"
+    colorize_method :dark_red,    "0;31"
+    colorize_method :dark_purple, "0;35"
+    colorize_method :dark_yellow, "1;33"
+    colorize_method :red,         "1;31"
+    colorize_method :blue,        "1;34"
+    colorize_method :en,          "1;32"
+    colorize_method :cyan,        "1;36"
+    colorize_method :red,         "1;31"
+    colorize_method :purple,      "1;35"
+    colorize_method :yellow,      "1;33"
+    colorize_method :black,       "0;30"
+    colorize_method :dark_gray,   "0;37"
+    colorize_method :gray,        "1;30"
+    colorize_method :white,       "1;37"
+
+end
+
 module TwitPrompt
     class << self
 
@@ -14,6 +42,7 @@ module TwitPrompt
         # TwitPromptCredentialFile = TwitPromptConfigDir+"/credential.yml"
         TwitPromptCredentialFile = '.twit_prompt_config.yml'
         TwitPromptTimelineData = "/tmp/timeline"
+        UserName = "@Linda_pp"
 
         def check_config
 
@@ -63,6 +92,11 @@ module TwitPrompt
             false
         end
 
+        # return [user,text,created_at]
+        def build_tweet status
+
+        end
+
         def update_timeline
             config_twitter
             File.open TwitPromptTimelineData,"a+" do |file|
@@ -74,9 +108,9 @@ module TwitPrompt
                     break if status.created_at < last_update
                     unless filtering? status
                         user = status.user.screen_name
-                        test = status.text.gsub /\n/,' '
+                        text = status.text.gsub /\n/,' '
                         created_at = status.created_at
-                        file.puts created_at,user,test
+                        file.puts created_at,user,text
                     end
                 end
             end
@@ -122,7 +156,7 @@ module TwitPrompt
             end
         end
 
-        private :check_config, :config_twitter, :filtering?, :update_timeline
+        private :check_config, :config_twitter, :filtering?, :update_timeline, :build_tweet
     end
 end
 
