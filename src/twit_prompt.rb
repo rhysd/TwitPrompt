@@ -93,8 +93,13 @@ module TwitPrompt
         end
 
         # return [user,text,created_at]
-        def build_tweet status
-
+        def build_tweet status,created_at
+            user = "@#{status.user.screen_name}: ".cyan
+            text = status.text.gsub /\n/,' '
+            text = text.include?(UserName) ? text.green : text # whether mention or not
+            created_at = ' [' + Time.new(created_at).strftime("%m/%d %H:%M:%S") + ']'
+            created_at = created_at.yellow
+            user + text + created_at
         end
 
         def update_timeline
