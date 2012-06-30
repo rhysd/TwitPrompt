@@ -8,7 +8,7 @@ Process.daemon true,true if %w[init update].any?{|a| a =~ /^#{ARGV[0]}/}
 # methods to colorize
 class String
 
-    def self.methods_to_colorize color_codes
+    def self.methods_to_colorize(color_codes)
         color_codes.each do |color,code|
             define_method(color) do
                 "\e[#{code}m#{self}\e[0m"
@@ -115,7 +115,19 @@ module TwitPrompt extend self
         end
     end
 
-    def build_tweet user,text,created_at
+    def reply?(text)
+        text =~ /^#{UserName}/
+    end
+
+    def mention?(text)
+        text.include? UserName
+    end
+
+    def rt?(text)
+        text =~ /^RT @[a-zA-Z0-9_]+: /
+    end
+
+    def build_tweet(user,text,created_at)
         user = "@#{user}: ".dark_cyan
         text = text.gsub /\n/,' '
         text = text.include?(UserName) ? text.dark_green : text # whether mention or not
@@ -128,10 +140,16 @@ module TwitPrompt extend self
         File.open TwitPromptTimelineData,"r" do |file|
 
         end
-
     end
 
-    private :check_config, :config_twitter, :filtering?, :update_timeline, :build_tweet
+    private :check_config,
+            :config_twitter,
+            :filtering?,
+            :update_timeline,
+            :build_tweet,
+            :reply?,
+            :mention?,
+            :rt?
 
     def init(options)
         update_timeline
