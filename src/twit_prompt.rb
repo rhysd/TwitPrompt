@@ -21,7 +21,7 @@ module TwitPrompt
             unless File.exist? TwitPromptCredentialFile
                 File.open(TwitPromptCredentialFile, "w") do |file|
                     file.print <<-EOS.gsub(/^\s+/, '')
-                        # get app keys at https://dev.twitter.com/ and write them
+                        # get app keys from https://dev.twitter.com/ and write them
 
                         consumer_key:       YourConsumerKey
                         consumer_secret:    YourConsumerSecretKey
