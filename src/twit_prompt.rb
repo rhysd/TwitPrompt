@@ -55,7 +55,6 @@ module TwitPrompt extend self
             File.open(TwitPromptCredentialFile, "w") do |file|
                 file.print <<-EOS.gsub(/^\s+/, '')
                         # get app keys at https://dev.twitter.com/ and write them
-
                         consumer_key:       YourConsumerKey
                         consumer_secret:    YourConsumerSecretKey
                         oauth_token:        YourOAuthToken
