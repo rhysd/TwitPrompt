@@ -98,11 +98,10 @@ module TwitPrompt extend self
 
     def update_timeline
         config_twitter
-        File.open TwitPromptTimelineData,"a+" do |file|
-            content = file.read
-            last_update = content.empty? ?
-                Time.local(1900) :
-                Time.new(content.split("\n").last)
+        last_update = File.exist?(TwitPromptTimelineData) ?
+            File.atime(TwitPromptTimelineData) :
+            Time.local(1900)
+        File.open TwitPromptTimelineData,"w+" do |file|
             Twitter.home_timeline.reverse_each do |status|
                 break if status.created_at < last_update
                 unless filtering? status
