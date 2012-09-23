@@ -161,7 +161,7 @@ module TwitPrompt extend self
         update_timeline
     end
 
-    def list(options)
+    def listup(options)
 
     end
 
@@ -196,7 +196,7 @@ class TwitPromptApp < Thor
 
     private
 
-    def self.delegate(name)
+    def self.def_feature(name)
         define_method name do |*args|
             TwitPrompt::__send__ name,options,*args
         end
@@ -209,34 +209,34 @@ class TwitPromptApp < Thor
     public
 
     desc 'init', 'initialize timeline data'
-    delegate :init
+    def_feature :init
 
     desc 'put', 'get a tweet from data'
-    delegate :put
+    def_feature :put
 
     desc 'update', 'update timeline'
-    delegate :update
+    def_feature :update
 
-    desc 'list', 'display timeline to stdout'
-    delegate :list
+    desc 'listup', 'display timeline to stdout'
+    def_feature :listup
 
     desc 'tweet [TEXT]', 'tweet'
-    delegate :tweet
+    def_feature :tweet
 
     desc 'reply [TEXT]', 'reply to last-displayed tweet'
     verbose_option
-    delegate :reply
+    def_feature :reply
 
     desc 'retweet', 'retweet last-displayed tweet'
     verbose_option
-    delegate :retweet
+    def_feature :retweet
 
     desc 'fav', 'add last-desplayed tweet to favorite tweets'
     verbose_option
-    delegate :fav
+    def_feature :fav
 
     desc 'config', 'configure YAML setting file'
-    delegate :config
+    def_feature :config
 end
 
 #
