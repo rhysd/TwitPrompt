@@ -2,12 +2,8 @@
 # -*- coding: utf-8 -*-
 # encoding: utf-8
 
-# TODO def_feature -> def_command
-
-# Extend String for making colorful {{{
-
-# methods to colorize
-class String
+# Monkey patch to making String colorful
+class String # {{{
 
   def self.methods_to_colorize(color_codes)
     color_codes.each do |color,code|
@@ -42,7 +38,8 @@ class String
 end
 # }}}
 
-module TwitPromptConfig extend self
+# app's config
+module TwitPromptConfig extend self # {{{
   Root = File.expand_path('~')+'/.twit_prompt'
   # File = TwitPromptConfigDir+"/credential.yml"
   Setting = '.twit_prompt_config.yml'
@@ -90,9 +87,10 @@ module TwitPromptConfig extend self
   end
 
 end
+# }}}
 
 # maintain timeline cache
-class Timeline
+class Timeline # {{{
 
   def head
     # head of cached tweets
@@ -133,8 +131,9 @@ class Timeline
   private :update
 
 end
+# }}}
 
-# Main logic of TwitPrompt {{{
+# Main module {{{
 module TwitPrompt extend self
 
   @timeline = Timeline.new
@@ -175,7 +174,7 @@ module TwitPrompt extend self
     @timeline.construct
   end
 
-  def put(options)
+  def prompt(options)
     puts build_tweet("Linda_pp","aiueo @Linda_pp kakikukeko sasissuseso","2012-06-30 11:35:36 +0900")
   end
 
@@ -207,13 +206,13 @@ module TwitPrompt extend self
 end
 # }}}
 
-# Interface of TwitPrompt # {{{
+# Interface {{{
 require 'thor'
 class TwitPromptApp < Thor
 
   private
 
-  def self.def_feature(name)
+  def self.def_command(name)
     define_method name do |*args|
       TwitPrompt::__send__ name,options,*args
     end
@@ -226,31 +225,31 @@ class TwitPromptApp < Thor
   public
 
   desc 'init', 'initialize timeline cache'
-  def_feature :init
+  def_command :init
 
-  desc 'put', 'show a tweet'
-  def_feature :put
+  desc 'prompt', 'show a tweet for a shell prompt'
+  def_command :prompt
 
   desc 'listup', 'show timeline to stdout'
-  def_feature :listup
+  def_command :listup
 
   desc 'tweet [TEXT]', 'tweet TEXT'
-  def_feature :tweet
+  def_command :tweet
 
   desc 'reply [TEXT]', 'reply to last-displayed tweet'
   verbose_option
-  def_feature :reply
+  def_command :reply
 
   desc 'retweet', 'retweet last-displayed tweet'
   verbose_option
-  def_feature :retweet
+  def_command :retweet
 
   desc 'fav', 'add last-desplayed tweet to favorite tweets'
   verbose_option
-  def_feature :fav
+  def_command :fav
 
   desc 'config', 'configure YAML setting file'
-  def_feature :config
+  def_command :config
 end
 # }}}
 
