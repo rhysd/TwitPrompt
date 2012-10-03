@@ -118,7 +118,7 @@ class Timeline # {{{
     File.open(TwitPromptConfig::Cache,"w+") do |file|
       twitter.home_timeline.reverse_each do |status|
         break if status.created_at < last_update
-        unless filtering? status
+        unless ignore? status
           user = status.user.screen_name
           text = status.text.gsub /\n/,' '
           created_at = status.created_at
@@ -133,13 +133,13 @@ class Timeline # {{{
 end
 # }}}
 
-# Main module {{{
-module TwitPrompt extend self
+# Main module
+module TwitPrompt extend self #  {{{
 
   @timeline = Timeline.new
   @screen_name = TwitPromptConfig::ScreenName
 
-  def filtering? status
+  def ignore? status
     false
   end
 
@@ -164,7 +164,7 @@ module TwitPrompt extend self
     user + text + created_at
   end
 
-  private :filtering?,
+  private :ignore?,
           :build_tweet,
           :reply?,
           :mention?,
@@ -206,8 +206,8 @@ module TwitPrompt extend self
 end
 # }}}
 
-# Interface {{{
-require 'thor'
+# Interface
+require 'thor' # {{{
 class TwitPromptApp < Thor
 
   private
