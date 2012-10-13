@@ -5,17 +5,7 @@
 # Monkey patch to making String colorful
 class String # {{{
 
-  def self.methods_to_colorize(color_codes)
-    color_codes.each do |color,code|
-      define_method(color) do
-        "\e[#{code}m#{self}\e[0m"
-      end
-    end
-  end
-
-  # private :colorize_method
-
-  methods_to_colorize({
+  {
     dark_blue:   "0;34",
     dark_green:  "0;32",
     dark_cyan:   "0;36",
@@ -33,7 +23,11 @@ class String # {{{
     dark_gray:   "0;37",
     gray:        "1;30",
     white:       "1;37"
-  })
+  }.each do |color,code|
+    define_method(color) do
+      "\e[#{code}m#{self}\e[0m"
+    end
+  end
 
 end
 # }}}
@@ -259,5 +253,3 @@ end
 if __FILE__ == $0 then
   TwitPromptApp::start
 end
-
-
