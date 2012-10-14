@@ -31,10 +31,11 @@ class String # {{{
 end
 # }}}
 
+# Name space of this application
+module TwitPrompt # {{{
 # app's config
-module TwitPromptConfig extend self # {{{
+module Config extend self # {{{
   Root = File.expand_path('~')+'/.twit_prompt'
-  # File = TwitPromptConfigDir+"/credential.yml"
   Setting = Root+'/.twit_prompt_config.yml'
   Cache = "/tmp/timeline"
   ScreenName = "@Linda_pp"
@@ -96,7 +97,7 @@ class Timeline # {{{
   end
 
   def construct
-    File.delete(TwitPromptConfig::Cache) if File.exist?(TwitPromptConfig::Cache)
+    File.delete(Config::Cache) if File.exist?(Config::Cache)
     update
   end
 
@@ -106,16 +107,16 @@ class Timeline # {{{
 
 
   def update
-    TwitPromptConfig::check
+    Config::check
     Process.daemon true,true
 
     # not implemented
     # get timelines from the file
-    twitter = TwitPromptConfig::client
-    last_update = File.exist?(TwitPromptConfig::Cache) ?
-      File.atime(TwitPromptConfig::Cache) :
+    twitter = Config::client
+    last_update = File.exist?(Config::Cache) ?
+      File.atime(Config::Cache) :
       Time.local(1900)
-    File.open(TwitPromptConfig::Cache,"w+") do |file|
+    File.open(Config::Cache,"w+") do |file|
       twitter.home_timeline.reverse_each do |status|
         break if status.created_at < last_update
         unless ignore? status
@@ -134,10 +135,9 @@ end
 # }}}
 
 # Main module
-module TwitPrompt extend self #  {{{
+module Main extend self #  {{{
 
   @timeline = Timeline.new
-  @screen_name = TwitPromptConfig::ScreenName
 
   def reply?(text)
     text =~ /^#{@screen_name}/
@@ -154,7 +154,7 @@ module TwitPrompt extend self #  {{{
   def build_tweet(user,text,created_at)
     user = "@#{user}: ".dark_cyan
     text = text.gsub /\n/,' '
-    text = text.include?(@screen_name) ? text.dark_green : text # whether mention or not
+    text = text.include?(Config::ScreenName) ? text.dark_green : text # whether mention or not
     created_at = ' [' + Time.new(created_at).strftime("%m/%d %T") + ']'
     created_at = created_at.dark_yellow
     user + text + created_at
@@ -195,21 +195,21 @@ module TwitPrompt extend self #  {{{
   end
 
   def config(options)
-    TwitPromptConfig::open_editor
+    Config::open_editor
   end
 
 end
 # }}}
 
-# Interface
+# Command line interface
 require 'thor' # {{{
-class TwitPromptApp < Thor
+class App < Thor
 
   private
 
   def self.def_command(name)
     define_method name do |*args|
-      TwitPrompt::__send__ name,options,*args
+      Main::__send__ name,options,*args
     end
   end
 
@@ -247,10 +247,11 @@ class TwitPromptApp < Thor
   def_command :config
 end
 # }}}
+end # module TwitPrompt }}}
 
 #
 # main
 #
 if __FILE__ == $0 then
-  TwitPromptApp.start
+  TwitPrompt::App.start
 end
