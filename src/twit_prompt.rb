@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
 # encoding: utf-8
 
 # Monkey patch to making String colorful
@@ -36,12 +35,11 @@ end
 module TwitPromptConfig extend self # {{{
   Root = File.expand_path('~')+'/.twit_prompt'
   # File = TwitPromptConfigDir+"/credential.yml"
-  Setting = '.twit_prompt_config.yml'
+  Setting = Root+'/.twit_prompt_config.yml'
   Cache = "/tmp/timeline"
   ScreenName = "@Linda_pp"
 
-  def check_config
-    Dir.mkdir Root unless Dir.exist? Root
+  def check
     unless File.exist? Setting
       File.open(Setting, "w") do |file|
         file.print <<-EOS.gsub(/^\s+/, '')
@@ -51,22 +49,23 @@ module TwitPromptConfig extend self # {{{
                         oauth_token:        YourOAuthToken
                         oauth_token_secret: YourOAuthSecretToken
         EOS
-
-        STDERR.puts "Configuration-keys are not found."
-        STDERR.puts "Write your consumer keys and OAuth keys to #{Setting}"
       end
-      system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', Setting
+      STDERR.puts "Configuration-keys are not found."
+      STDERR.puts "Write your consumer keys and OAuth keys to #{Setting}"
+      self.open
     end
+  end
+
+  def open
+    system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', Setting
   end
 
   def config_twitter
     require 'twitter'
     require 'yaml'
 
-    check_config
-
     yaml = YAML.load(File.open(Setting).read)
-    Twitter::client.new(
+    Twitter::Client.new(
       consumer_key: yaml['consumer_key'],
       consumer_secret: yaml['consumer_secret'],
       oauth_token: yaml['oauth_token'],
@@ -74,7 +73,7 @@ module TwitPromptConfig extend self # {{{
     )
   end
 
-  private :check_config, :config_twitter
+  private :config_twitter
 
   def client
     @client ||= config_twitter
@@ -97,16 +96,23 @@ class Timeline # {{{
   end
 
   def construct
-    File.delete(TwitPromptConfig::Setting)
+    File.delete(TwitPromptConfig::Cache) if File.exist?(TwitPromptConfig::Cache)
     update
   end
 
+  def ignore? status
+    false
+  end
+
+
   def update
-    Process.daemon true,true
+    TwitPromptConfig::check
+    # Process.daemon true,true
+
     # not implemented
     # get timelines from the file
     twitter = TwitPromptConfig::client
-    last_update = File.exist?(@cache) ?
+    last_update = File.exist?(TwitPromptConfig::Cache) ?
       File.atime(TwitPromptConfig::Cache) :
       Time.local(1900)
     File.open(TwitPromptConfig::Cache,"w+") do |file|
@@ -122,7 +128,7 @@ class Timeline # {{{
     end
   end
 
-  private :update
+  private :update, :ignore?
 
 end
 # }}}
@@ -132,10 +138,6 @@ module TwitPrompt extend self #  {{{
 
   @timeline = Timeline.new
   @screen_name = TwitPromptConfig::ScreenName
-
-  def ignore? status
-    false
-  end
 
   def reply?(text)
     text =~ /^#{@screen_name}/
@@ -158,8 +160,7 @@ module TwitPrompt extend self #  {{{
     user + text + created_at
   end
 
-  private :ignore?,
-          :build_tweet,
+  private :build_tweet,
           :reply?,
           :mention?,
           :rt?
@@ -194,7 +195,7 @@ module TwitPrompt extend self #  {{{
   end
 
   def config(options)
-    system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', TwitPromptConfig::Setting
+    TwitPromptConfig::open
   end
 
 end
@@ -251,5 +252,5 @@ end
 # main
 #
 if __FILE__ == $0 then
-  TwitPromptApp::start
+  TwitPromptApp.start
 end
