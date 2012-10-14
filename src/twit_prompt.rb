@@ -33,6 +33,7 @@ end
 
 # Name space of this application
 module TwitPrompt # {{{
+
 # app's config
 module Config extend self # {{{
   Root = File.expand_path('~')+'/.twit_prompt'
@@ -110,7 +111,6 @@ class Timeline # {{{
     Config::check
     Process.daemon true,true
 
-    # not implemented
     # get timelines from the file
     twitter = Config::client
     last_update = File.exist?(Config::Cache) ?
@@ -173,7 +173,7 @@ module Main extend self #  {{{
     puts build_tweet("Linda_pp","aiueo @Linda_pp kakikukeko sasissuseso","2012-06-30 11:35:36 +0900")
   end
 
-  def listup(options)
+  def timeline(options)
 
   end
 
@@ -225,8 +225,8 @@ class App < Thor
   desc 'prompt', 'show a tweet for a shell prompt'
   def_command :prompt
 
-  desc 'listup', 'show timeline to stdout'
-  def_command :listup
+  desc 'timeline', 'show timeline to stdout'
+  def_command :timeline
 
   desc 'tweet [TEXT]', 'tweet TEXT'
   def_command :tweet
@@ -247,6 +247,7 @@ class App < Thor
   def_command :config
 end
 # }}}
+
 end # module TwitPrompt }}}
 
 #
