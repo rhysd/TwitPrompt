@@ -52,11 +52,11 @@ module TwitPromptConfig extend self # {{{
       end
       STDERR.puts "Configuration-keys are not found."
       STDERR.puts "Write your consumer keys and OAuth keys to #{Setting}"
-      self.open
+      open_editor
     end
   end
 
-  def open
+  def open_editor
     system 'bash', '-c', (ENV['EDITOR'] || 'vi')+' "$@"', '--', Setting
   end
 
@@ -107,7 +107,7 @@ class Timeline # {{{
 
   def update
     TwitPromptConfig::check
-    # Process.daemon true,true
+    Process.daemon true,true
 
     # not implemented
     # get timelines from the file
@@ -195,7 +195,7 @@ module TwitPrompt extend self #  {{{
   end
 
   def config(options)
-    TwitPromptConfig::open
+    TwitPromptConfig::open_editor
   end
 
 end
